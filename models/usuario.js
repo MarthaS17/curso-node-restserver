@@ -42,7 +42,8 @@ const UsuarioSchema = Schema({
 });
 
 UsuarioSchema.methods.toJSON = function () {
-    const { __v, password, ...usuario } = this.toObject();//exluye __v y password
+    const { __v, password, _id, ...usuario } = this.toObject();//exluye __v y password
+    usuario.uid = _id;//cambia el campo de _id a uid en memoria
     return usuario;
 }
 
