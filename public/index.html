@@ -27,7 +27,9 @@
             //Google Token : Id_Token
             //console.log('id_token', response.credential);
             const body = { id_token: response.credential }
-            fetch('http://localhost:8080/api/auth/google',
+            fetch(window.location.hostname.includes('localhost')
+                ? 'http://localhost:8080/api/auth/google'
+                : 'https://https://marthas-curso-node-restserver.herokuapp.com//api/auth/google',
                 {
                     method: 'POST',
                     headers: {
@@ -51,7 +53,7 @@
             google.accounts.id.disableAutoSelect();
             google.accounts.id.revoke(localStorage.getItem('email'), done => {
                 localStorage.clear();
-                location.reload();
+                location.reload(); ss
             })
         }
     </script>
