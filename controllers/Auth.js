@@ -61,8 +61,8 @@ const googleSingIn = async (req, res = response) => {
             usuario = new Usuario(data);
             await usuario.save();
         }
-        else{
-            
+        else {
+
         }
 
         //si el usuario en  DB
