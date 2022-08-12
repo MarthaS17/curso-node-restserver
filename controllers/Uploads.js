@@ -61,44 +61,51 @@ const actualizarImagen = async (req = request, res = response) => {
 }
 
 const actualizarImgCloudinary = async (req = request, res = response) => {
+    try {
 
-    const { id, coleccion } = req.params;
-    let modelo;
-    switch (coleccion) {
-        case "usuarios":
-            modelo = await Usuario.findById(id);
-            if (!modelo) {
-                return res.status(400).json({ msg: `No existe un usuario con el id ${id}` })
-            }
+        const { id, coleccion } = req.params;
+        let modelo;
+        switch (coleccion) {
+            case "usuarios":
+                modelo = await Usuario.findById(id);
+                if (!modelo) {
+                    return res.status(400).json({ msg: `No existe un usuario con el id ${id}` })
+                }
 
-            break;
-        case "productos":
-            modelo = await Producto.findById(id);
-            if (!modelo) {
-                return res.status(400).json({ msg: `No existe un productos con el id ${id}` })
-            }
+                break;
+            case "productos":
+                modelo = await Producto.findById(id);
+                if (!modelo) {
+                    return res.status(400).json({ msg: `No existe un productos con el id ${id}` })
+                }
 
-            break;
-        default:
+                break;
+            default:
 
-            return res.status(500).json({ msg: `Se me olvido implementar esta coleccion ${coleccion}` });
+                return res.status(500).json({ msg: `Se me olvido implementar esta coleccion ${coleccion}` });
+        }
+        //Borrar la imagen actual/previas
+        if (modelo.img) {//si tiene la propiedad img existe
+            //borrar la img del servr
+            const nombreArr = modelo.img.split('/');
+            const nombre = nombreArr[nombreArr.length - 1];
+            const [public_id] = nombre.split('.');
+            cloudinary.uploader.destroy(public_id);
+        }
+        //subir la nueva imagen
+        const { tempFilePath } = req.files.archivo;
+        const { secure_url } = await cloudinary.uploader.upload(tempFilePath);
+        modelo.img = secure_url;
+        await modelo.save();
+        res.json({
+            modelo
+        })
+    } catch (error) {
+        res.status(500).json({
+            msg: 'Error',
+            error
+        });
     }
-    //Borrar la imagen actual/previas
-    if (modelo.img) {//si tiene la propiedad img existe
-        //borrar la img del servr
-        const nombreArr = modelo.img.split('/');
-        const nombre = nombreArr[nombreArr.length - 1];
-        const [public_id] = nombre.split('.');
-        cloudinary.uploader.destroy(public_id);
-    }
-    //subir la nueva imagen
-    const { tempFilePath } = req.files.archivo;
-    const { secure_url } = await cloudinary.uploader.upload(tempFilePath);
-    modelo.img = secure_url;
-    await modelo.save();
-    res.json({
-        modelo
-    })
 }
 
 const mostrarImagen = async (req = request, res = response) => {
